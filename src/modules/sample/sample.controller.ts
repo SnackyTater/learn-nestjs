@@ -1,8 +1,9 @@
-import { Body, Controller, Get, HttpCode, Param, Post, Query, Req } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Param, Post, Query, Req, ValidationPipe } from '@nestjs/common';
 import { Request } from 'express';
 
 import { SampleService } from './sample.service';
 
+import { CreateSampleDto } from 'src/models/dto/createSample.dto';
 import { IdOnly, SampleBody, SampleDto } from 'src/models/dto/sample.dto';
 
 @Controller('sample')
@@ -16,7 +17,6 @@ export class SampleController {
 
   @Get('request')
   getRequestInfo(@Req() request: Request): any {
-    console.log('request info', request);
     return request.headers;
   }
 
@@ -37,9 +37,8 @@ export class SampleController {
 
   @Post()
   @HttpCode(204)
-  createSample(@Body() body: SampleBody): string {
-    console.log('body', body);
-    return 'create success';
+  createSample(@Body(ValidationPipe) body: CreateSampleDto): string {
+    return this.sampleService.addSample(body);
   }
 
   @Get('single/:id')
@@ -54,7 +53,7 @@ export class SampleController {
 
   @Post('create')
   addSample(@Body() body: SampleDto) {
-    this.sampleService.addSample(body);
+    this.sampleService.addSample(body); 
     return 'add successfully'
   }
 }

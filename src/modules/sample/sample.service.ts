@@ -1,17 +1,20 @@
 import { Injectable } from '@nestjs/common';
-import { Sample } from '@prisma/client';
-import { CreateSampleDto } from 'src/models/dto/sample.dto';
+import { CreateSampleDto } from 'src/models/dto/createSample.dto';
 import { SampleInterface } from 'src/models/interface/sample.interface';
-import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class SampleService {
-  constructor(private readonly prisma: PrismaService) {}
+  // constructor(private readonly prisma: PrismaService) {}
 
   private readonly sampleList: SampleInterface[] = [];
 
-  async addSample(data: CreateSampleDto): Promise<Sample> {
-    return this.prisma.sample.create({ data });
+  // async addSample(data: CreateSampleDto): Promise<Sample> {
+  //   return this.prisma.sample.create({ data });
+  // }
+
+  addSample(data: CreateSampleDto) {
+    throw new Error('aaaa')
+    return `sample with the name ${data.name} is created`;
   }
 
   getCertainSample(id: number): SampleInterface | undefined {

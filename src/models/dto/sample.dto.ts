@@ -12,7 +12,3 @@ export interface SampleDto {
   id: number;
   name: string;
 }
-
-export interface CreateSampleDto {
-  name: string;
-}
