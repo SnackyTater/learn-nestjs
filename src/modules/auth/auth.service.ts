@@ -1,17 +1,13 @@
 import { Injectable } from '@nestjs/common';
-import { Sample } from '@prisma/client';
-import { CreateSampleDto } from 'src/models/dto/sample.dto';
+import { SampleDto } from 'src/models/dto/sample.dto';
 import { SampleInterface } from 'src/models/interface/sample.interface';
-import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
-export class SampleService {
-  constructor(private readonly prisma: PrismaService) {}
-
+export class AuthService {
   private readonly sampleList: SampleInterface[] = [];
 
-  async addSample(data: CreateSampleDto): Promise<Sample> {
-    return this.prisma.sample.create({ data });
+  addSample(sample: SampleDto): void {
+    this.sampleList.push(sample);
   }
 
   getCertainSample(id: number): SampleInterface | undefined {
