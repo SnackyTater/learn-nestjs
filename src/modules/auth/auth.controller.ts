@@ -1,65 +1,51 @@
-import { Body, Controller, Get, HttpCode, Param, Post, Query, Req } from '@nestjs/common';
+import { Body, Controller, Ip, Post, Req, UseGuards, ValidationPipe } from '@nestjs/common';
 import { Request } from 'express';
-
+import { AuthGuard } from 'src/guards/auth.guards';
+import { LoginDto, SignupDto, CreateOtpDto, VerifyOtpDto } from 'src/models/dto/auth.dto';
 import { AuthService } from './auth.service';
-
-import { IdOnly, SampleBody, SampleDto } from 'src/models/dto/sample.dto';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('signup')
-  signup(){
-    
+  async signup(@Body(ValidationPipe) body: SignupDto){
+    const account = await this.authService.createAccount(body);
+    return account
   }
 
-  @Get()
-  getHello(): string {
-    return this.authService.getHello();
+  @Post('create-otp')
+  async createOTP(@Body(ValidationPipe) body: CreateOtpDto){
+    const otp = await this.authService.createOtp(body);
+    return otp 
   }
 
-  @Get('request')
-  getRequestInfo(@Req() request: Request): any {
-    console.log('request info', request);
-    return request.headers;
+  @Post('verify-otp')
+  async verifySignupOTP(@Body(ValidationPipe) body: VerifyOtpDto){
+    const result = await this.authService.verifyOtp(body);
+    return result;
   }
 
-  @Get('query-single')
-  getQuery(@Query('id') id: string): string {
-    return `your id in query is ${id}`;
+  @Post('login')
+  async login(@Body(ValidationPipe) body: LoginDto, @Req() req: Request, @Ip() ip: string){
+    const userAgent = req.headers['user-agent'] as string;
+    const token = await this.authService.createLoginSession(body, userAgent, ip);
+    return token;
   }
 
-  @Get('query-multiple')
-  getQueries(@Query('id') id: string, @Query('page') page: number): string {
-    return `you want to select page ${page} from id ${id}`;
+  @Post('validate')
+  @UseGuards(AuthGuard)
+  validate(): string{
+    return '';
   }
 
-  @Get('param/:id')
-  getParamId(@Param() param: IdOnly): string {
-    return `passed id are ${param.id}`;
+  @Post('forgot-password')
+  async createForgotPasswordOTP(){
+    return ''
   }
 
-  @Post()
-  @HttpCode(204)
-  createSample(@Body() body: SampleBody): string {
-    console.log('body', body);
-    return 'create success';
-  }
-
-  @Get('single/:id')
-  getSingleSample(@Param('id') id: string): SampleDto | undefined {
-    return this.authService.getCertainSample(Number.parseInt(id));
-  }
-
-  @Get('all')
-  getAllSample(): SampleDto[] {
-    return this.authService.getAllSamples();
-  }
-
-  @Post('create')
-  addSample(@Body() body: SampleDto) {
-    this.authService.addSample(body);
-    return 'add successfully'
+  @Post('update-password')
+  async updatePasswordWithOTP(){
+    return ''
   }
 }

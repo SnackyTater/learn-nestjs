@@ -1,0 +1,10 @@
+model Profile {
+  id            String        @id @default(auto()) @map("_id") @db.ObjectId
+  email         String        @unique
+  phone         String        @unique
+  name          String
+  preferencesId String[]      @db.ObjectId @default([])
+  preferences   Preference[]  @relation(fields: [preferencesId], references: [id])
+  accountId     String        @unique @db.ObjectId
+  account       Account       @relation(fields: [accountId], references: [id])
+}

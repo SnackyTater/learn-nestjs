@@ -1,25 +1,79 @@
-import { Injectable } from '@nestjs/common';
-import { SampleDto } from 'src/models/dto/sample.dto';
-import { SampleInterface } from 'src/models/interface/sample.interface';
+import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
+import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import { LoginDto, SignupDto, CreateOtpDto, VerifyOtpDto } from 'src/models/dto/auth.dto';
+import { PrismaService } from 'src/prisma/prisma.service';
+import { createToken } from 'src/utils/auth';
 
 @Injectable()
 export class AuthService {
-  private readonly sampleList: SampleInterface[] = [];
+  constructor(
+    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
+    private readonly prisma: PrismaService
+  ){}
 
-  addSample(sample: SampleDto): void {
-    this.sampleList.push(sample);
+  async createOtp(payload: CreateOtpDto): Promise<string>{
+    const account = payload['email'];
+    const iat = Date.now().toString();
+    const exp = (Date.now() + 30 * 60 * 1000).toString();
+    
+    const otp = await Promise.resolve('123123');
+    await this.prisma.otp.upsert({
+      where: { account },
+      update: { otp, iat, exp },
+      create: { account, otp, iat, exp },
+    });
+
+    return otp
   }
 
-  getCertainSample(id: number): SampleInterface | undefined {
-    const result = this.sampleList.find(sample => sample.id === id);
-    return result;
+  async verifyOtp(payload: VerifyOtpDto): Promise<string>{
+    const result = await this.prisma.otp.findFirst({
+      where: { account: payload['email'] }
+    });
+
+    if(!result) return 'invalid OTP';
+
+    //if otp is expire then break out
+    const now = Date.now();
+    if(Number(result.exp) > now) return 'OTP is expired, please issue a new one';
+
+    //check otp value
+    if(payload['otp'] != result.otp) return 'invalid OTP';
+
+    return '';
   }
 
-  getAllSamples(): SampleInterface[] {
-    return this.sampleList;
+  async createAccount(payload: SignupDto): Promise<any>{
+    const account = await this.prisma.account.create({
+      data: {...payload}
+    })
+    return account
   }
 
-  getHello(): string {
-    return 'Hello World!';
+  async createLoginSession(payload: LoginDto, userAgent: string, ip: string): Promise<string> {
+    const user = await this.prisma.account.findFirst({
+      where: {
+        OR: [ 
+          { email: payload['username'] },
+          { phone: payload['username'] }
+        ],
+        AND: { password: payload['password'] }
+      }
+    })
+
+    if(!user) throw new UnauthorizedException('incorrect username or password')
+
+    //create token info
+    const tokenPayload = {};
+    tokenPayload['user'] = payload['username'];
+    tokenPayload['iat'] = Date.now();
+    tokenPayload['exp'] = Date.now() + 5 * 60 * 1000;
+    const token = createToken(tokenPayload);
+
+    //save token to cache 
+    const cacheKey = `${userAgent}|${ip}`;
+    this.cacheManager.set(cacheKey, token);
+
+    return token;
   }
 }

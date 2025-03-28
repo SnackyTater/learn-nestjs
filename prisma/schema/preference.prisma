@@ -1,0 +1,6 @@
+model Preference {
+  id      String      @id @default(auto()) @map("_id") @db.ObjectId
+  name    String      @unique
+  userId  String[]    @db.ObjectId
+  user    Profile[]   @relation(fields: [userId], references: [id])
+}
