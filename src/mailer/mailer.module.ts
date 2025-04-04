@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MailerModule } from '@nestjs-modules/mailer';
-import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
+import { EjsAdapter } from '@nestjs-modules/mailer/dist/adapters/ejs.adapter';
 import { MailService } from './mailer.service';
 
 const MailerModuleInstance = MailerModule.forRoot({
@@ -18,7 +18,7 @@ const MailerModuleInstance = MailerModule.forRoot({
   },
   template: {
     dir: __dirname + '/templates', // Directory for email templates
-    adapter: new HandlebarsAdapter(),
+    adapter: new EjsAdapter(),
     options: {
       strict: true,
     },

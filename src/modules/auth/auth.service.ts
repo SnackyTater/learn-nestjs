@@ -13,8 +13,8 @@ export class AuthService {
 
   async createOtp(payload: CreateOtpDto): Promise<string>{
     const account = payload['email'];
-    const iat = Date.now().toString();
-    const exp = (Date.now() + 30 * 60 * 1000).toString();
+    const iat = Date.now();
+    const exp = (Date.now() + 30 * 60 * 1000);
     
     const otp = await Promise.resolve('123123');
     await this.prisma.otp.upsert({

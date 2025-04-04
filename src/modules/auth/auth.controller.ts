@@ -1,6 +1,5 @@
-import { Body, Controller, Ip, Post, Req, UseGuards, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Ip, Post, Req, ValidationPipe } from '@nestjs/common';
 import { Request } from 'express';
-import { AuthGuard } from 'src/guards/auth.guards';
 import { LoginDto, SignupDto, CreateOtpDto, VerifyOtpDto } from 'src/models/dto/auth.dto';
 import { AuthService } from './auth.service';
 
@@ -14,13 +13,13 @@ export class AuthController {
     return account
   }
 
-  @Post('create-otp')
+  @Post('create-register-otp')
   async createOTP(@Body(ValidationPipe) body: CreateOtpDto){
     const otp = await this.authService.createOtp(body);
     return otp 
   }
 
-  @Post('verify-otp')
+  @Post('verify-register-otp')
   async verifySignupOTP(@Body(ValidationPipe) body: VerifyOtpDto){
     const result = await this.authService.verifyOtp(body);
     return result;
@@ -31,21 +30,5 @@ export class AuthController {
     const userAgent = req.headers['user-agent'] as string;
     const token = await this.authService.createLoginSession(body, userAgent, ip);
     return token;
-  }
-
-  @Post('validate')
-  @UseGuards(AuthGuard)
-  validate(): string{
-    return '';
-  }
-
-  @Post('forgot-password')
-  async createForgotPasswordOTP(){
-    return ''
-  }
-
-  @Post('update-password')
-  async updatePasswordWithOTP(){
-    return ''
   }
 }

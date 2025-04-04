@@ -1,9 +1,10 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { CacheModule } from '@nestjs/cache-manager';
 
-import { LoggerMiddleware } from './middlewares/logger.middleware';
+import { LoggerMiddleware } from './commons/middlewares/logger.middleware';
 
 import { PreferenceModules } from './modules/preference/preference.module';
+import { AccountModules } from './modules/account/account.module';
 import { SampleModules } from './modules/sample/sample.module';
 import { AuthModules } from './modules/auth/auth.module';
 import { PrismaModule } from './prisma/prisma.module';
@@ -13,7 +14,7 @@ const CacheModules = CacheModule.register({
 })
 
 @Module({
-  imports: [SampleModules, PreferenceModules, AuthModules, PrismaModule, CacheModules],
+  imports: [SampleModules, PreferenceModules, AuthModules, PrismaModule, AccountModules, CacheModules],
   controllers: [],
   providers: [],
   

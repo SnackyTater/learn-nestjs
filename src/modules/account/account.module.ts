@@ -8,4 +8,4 @@ import { AccountService } from './account.service';
   providers: [AccountService],
   imports: [PrismaModule]
 })
-export class AuthModules {}
+export class AccountModules {}

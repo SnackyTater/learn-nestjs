@@ -1,7 +1,8 @@
 model Account {
   id        String    @id @default(auto()) @map("_id") @db.ObjectId
   email     String    @unique
-  phone     String    @unique
-  password  String    
+  phone     String?   @unique
+  password  String?    
+  validated Boolean?  @default(false)   
   profile   Profile?  @relation
 }
